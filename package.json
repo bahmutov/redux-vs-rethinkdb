@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "pick-precompiled": "1.0.2",
-    "redux": "3.3.0"
+    "redux": "3.3.0",
+    "rethinkdb": "2.2.1"
   }
 }
