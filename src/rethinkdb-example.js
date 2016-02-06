@@ -1,6 +1,6 @@
 'use strict'
 
-function initStore() {
+function initDB() {
   const r = require('rethinkdb')
   const dbOptions = { host: 'localhost', port: 28015 }
   return r.connect(dbOptions)
@@ -60,7 +60,7 @@ function counter(rethinkState, action) {
   }
 }
 
-initStore()
+initDB()
   .then(function subscribe(state) {
     return state.table.get(1).changes().run(state.conn)
       .then(cursor => {
@@ -68,7 +68,7 @@ initStore()
       })
       .then(() => state)
   })
-  .then(rethinkState => counter(rethinkState))
+  .then(counter)
   .then(rethinkState => counter(rethinkState, { type: 'INCREMENT' }))
   .then(rethinkState => counter(rethinkState, { type: 'INCREMENT' }))
   .then(rethinkState => counter(rethinkState, { type: 'DECREMENT' }))
