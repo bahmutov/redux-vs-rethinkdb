@@ -1,0 +1,99 @@
+'use strict'
+
+function initDB() {
+  const r = require('rethinkdb')
+  const dbOptions = { host: 'localhost', port: 28015 }
+  return r.connect(dbOptions)
+    .then(conn => {
+      console.log('connected')
+      const db = r.db('test')
+
+      return db.tableList().run(conn)
+        .then(tables => {
+          if (tables.indexOf('state') !== -1) {
+            console.log('deleting existing table state')
+            return db.tableDrop('state').run(conn)
+          }
+        })
+        .then(() => {
+          return db.tableCreate('state').run(conn)
+            .then(() => console.log('created state table'))
+        })
+        .then(() => {
+          console.log('returning db objects')
+          return {
+            r: r,
+            conn: conn,
+            db: db,
+            table: r.db('test').table('state')
+          }
+        })
+    })
+    .then(info => {
+      console.log('got info', Object.keys(info))
+      return info
+    })
+}
+
+function createStore(reducer) {
+  // queue for async actions
+  var queue
+  // interface to rethinkDB
+  var rethinkInterface
+
+  const store = {
+    dispatch: function dispatch(action) {
+      queue = queue.then(() => reducer(rethinkInterface, action))
+    }
+  }
+  queue = initDB()
+    .then(rethink => {
+      rethinkInterface = rethink
+      return rethink
+    })
+  return store
+}
+
+function counter(rethinkState, action) {
+  if (!action) {
+    console.log('setting the default state')
+    return rethinkState.table.insert({
+      id: 1,
+      state: 0
+    }).run(rethinkState.conn).then(() => rethinkState)
+  }
+
+  switch (action.type) {
+  case 'INCREMENT':
+    console.log('incrementing value')
+    return rethinkState.table.get(1).update({
+      state: rethinkState.r.row('state').add(1)
+    }).run(rethinkState.conn).then(() => rethinkState)
+  case 'DECREMENT':
+    console.log('decrementing')
+    return rethinkState.table.get(1).update({
+      state: rethinkState.r.row('state').add(-1)
+    }).run(rethinkState.conn).then(() => rethinkState)
+  default:
+    return rethinkState
+  }
+}
+
+const store = createStore(counter)
+store.dispatch()
+store.dispatch({ type: 'INCREMENT' })
+store.dispatch({ type: 'INCREMENT' })
+store.dispatch({ type: 'DECREMENT' })
+
+  // .then(function subscribe(state) {
+  //   return state.table.get(1).changes().run(state.conn)
+  //     .then(cursor => {
+  //       cursor.each((err, change) => console.log(change.new_val.state))
+  //     })
+  //     .then(() => state)
+  // })
+  // .then(counter)
+  // .then(rethinkState => counter(rethinkState, { type: 'INCREMENT' }))
+  // .then(rethinkState => counter(rethinkState, { type: 'INCREMENT' }))
+  // .then(rethinkState => counter(rethinkState, { type: 'DECREMENT' }))
+  // .done()
