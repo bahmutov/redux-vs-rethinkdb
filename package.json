@@ -4,7 +4,9 @@
   "description": "Immutable Redux \"store\" is just a database",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "precompile",
+    "redux": "node dist/redux-example.compiled.for.5.js"
   },
   "repository": {
     "type": "git",
@@ -22,5 +24,23 @@
   "bugs": {
     "url": "https://github.com/bahmutov/redux-vs-rethinkdb/issues"
   },
-  "homepage": "https://github.com/bahmutov/redux-vs-rethinkdb#readme"
+  "homepage": "https://github.com/bahmutov/redux-vs-rethinkdb#readme",
+  "devDependencies": {
+    "pre-compiled": "1.3.2"
+  },
+  "config": {
+    "pre-compiled": {
+      "dir": "dist",
+      "files": [
+        "src/redux-example.js"
+      ],
+      "node": [
+        "5"
+      ]
+    }
+  },
+  "dependencies": {
+    "pick-precompiled": "1.0.2",
+    "redux": "3.3.0"
+  }
 }
