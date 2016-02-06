@@ -44,10 +44,11 @@ function counter(rethinkState, action) {
     return rethinkState.table.insert({
       id: 1,
       state: 0
-    })
+    }).then(() => rethinkState)
   }
 }
 
 initStore()
   .then(rethinkState => counter(rethinkState, {}))
+  .then(rethinkState => counter(rethinkState, { type: 'INCREMENT' }))
   .done()
