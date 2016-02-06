@@ -5,6 +5,7 @@ Companion source code for [Do not reinvent the wheel (database)](https://glebbah
 
 * [redux example](src/redux-example.js)
 * [rethinkdb example](src/rethinkdb-example.js)
+* [rethinkdb example without boilerplate](src/rethink-no-boiler.js)
 
 ### Small print
 

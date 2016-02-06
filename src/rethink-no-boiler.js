@@ -36,44 +36,47 @@ function initDB() {
 }
 
 function createStore(reducer) {
-  // queue for async actions
-  var queue
-  // interface to rethinkDB
-  var rethinkInterface
+  var queue // queue for async actions
+  var rethinkInterface // interface to rethinkDB
+  // simpler interface for reducer to use
+  var state = {
+    set: function (value) {
+      return rethinkInterface.table.insert({
+        id: 1,
+        state: value
+      }).run(rethinkInterface.conn)
+    },
+    increment: function (delta) {
+      return rethinkInterface.table.get(1).update({
+        state: rethinkInterface.r.row('state').add(delta)
+      }).run(rethinkInterface.conn)
+    }
+  }
+  var stateReducer = reducer.bind(null, state)
 
   const store = {
     dispatch: function dispatch(action) {
-      queue = queue.then(() => reducer(rethinkInterface, action))
+      queue = queue.then(() => stateReducer(action))
     }
   }
   queue = initDB()
-    .then(rethink => {
-      rethinkInterface = rethink
-      return rethink
-    })
+    .then(rethink => rethinkInterface = rethink)
   return store
 }
 
 function counter(rethinkState, action) {
   if (!action) {
     console.log('setting the default state')
-    return rethinkState.table.insert({
-      id: 1,
-      state: 0
-    }).run(rethinkState.conn).then(() => rethinkState)
+    return rethinkState.set(0)
   }
 
   switch (action.type) {
   case 'INCREMENT':
     console.log('incrementing value')
-    return rethinkState.table.get(1).update({
-      state: rethinkState.r.row('state').add(1)
-    }).run(rethinkState.conn).then(() => rethinkState)
+    return rethinkState.increment(1)
   case 'DECREMENT':
     console.log('decrementing')
-    return rethinkState.table.get(1).update({
-      state: rethinkState.r.row('state').add(-1)
-    }).run(rethinkState.conn).then(() => rethinkState)
+    return rethinkState.increment(-1)
   default:
     return rethinkState
   }
@@ -84,16 +87,3 @@ store.dispatch()
 store.dispatch({ type: 'INCREMENT' })
 store.dispatch({ type: 'INCREMENT' })
 store.dispatch({ type: 'DECREMENT' })
-
-  // .then(function subscribe(state) {
-  //   return state.table.get(1).changes().run(state.conn)
-  //     .then(cursor => {
-  //       cursor.each((err, change) => console.log(change.new_val.state))
-  //     })
-  //     .then(() => state)
-  // })
-  // .then(counter)
-  // .then(rethinkState => counter(rethinkState, { type: 'INCREMENT' }))
-  // .then(rethinkState => counter(rethinkState, { type: 'INCREMENT' }))
-  // .then(rethinkState => counter(rethinkState, { type: 'DECREMENT' }))
-  // .done()
