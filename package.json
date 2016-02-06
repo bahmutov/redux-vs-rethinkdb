@@ -1,0 +1,26 @@
+{
+  "name": "redux-vs-rethinkdb",
+  "version": "1.0.0",
+  "description": "Immutable Redux \"store\" is just a database",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bahmutov/redux-vs-rethinkdb.git"
+  },
+  "private": true,
+  "keywords": [
+    "redux",
+    "store",
+    "database",
+    "rethinkdb"
+  ],
+  "author": "Gleb Bahmutov <gleb.bahmutov@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bahmutov/redux-vs-rethinkdb/issues"
+  },
+  "homepage": "https://github.com/bahmutov/redux-vs-rethinkdb#readme"
+}
