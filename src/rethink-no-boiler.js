@@ -57,6 +57,14 @@ function createStore(reducer) {
   const store = {
     dispatch: function dispatch(action) {
       queue = queue.then(() => stateReducer(action))
+    },
+    subscribe: function (cb) {
+      queue = queue.then(() => {
+        return rethinkInterface.table.get(1).changes().run(rethinkInterface.conn)
+          .then(cursor => {
+            cursor.each((err, change) => cb(change.new_val.state))
+          })
+      })
     }
   }
   queue = initDB()
@@ -83,7 +91,8 @@ function counter(rethinkState, action) {
 }
 
 const store = createStore(counter)
-store.dispatch()
+store.subscribe(state => console.log(state))
+store.dispatch() // set default state
 store.dispatch({ type: 'INCREMENT' })
 store.dispatch({ type: 'INCREMENT' })
 store.dispatch({ type: 'DECREMENT' })
