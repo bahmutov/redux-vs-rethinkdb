@@ -36,6 +36,14 @@ function initStore() {
 }
 
 function counter(rethinkState, action) {
+  if (!action) {
+    console.log('setting the default state')
+    return rethinkState.table.insert({
+      id: 1,
+      state: 0
+    }).run(rethinkState.conn).then(() => rethinkState)
+  }
+
   switch (action.type) {
   case 'INCREMENT':
     console.log('incrementing value')
@@ -48,12 +56,7 @@ function counter(rethinkState, action) {
       state: rethinkState.r.row('state').add(-1)
     }).run(rethinkState.conn).then(() => rethinkState)
   default:
-    // init on default
-    console.log('setting the default state')
-    return rethinkState.table.insert({
-      id: 1,
-      state: 0
-    }).run(rethinkState.conn).then(() => rethinkState)
+    return rethinkState
   }
 }
 
@@ -65,7 +68,7 @@ initStore()
       })
       .then(() => state)
   })
-  .then(rethinkState => counter(rethinkState, {}))
+  .then(rethinkState => counter(rethinkState))
   .then(rethinkState => counter(rethinkState, { type: 'INCREMENT' }))
   .then(rethinkState => counter(rethinkState, { type: 'INCREMENT' }))
   .then(rethinkState => counter(rethinkState, { type: 'DECREMENT' }))
