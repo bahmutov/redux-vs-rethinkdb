@@ -59,10 +59,11 @@ function counter(rethinkState, action) {
 
 initStore()
   .then(function subscribe(state) {
-    state.table.get(1).changes().run(state.conn, (err, cursor) => {
-      cursor.each((err, change) => console.log(change.new_val.state))
-    })
-    return state
+    return state.table.get(1).changes().run(state.conn)
+      .then(cursor => {
+        cursor.each((err, change) => console.log(change.new_val.state))
+      })
+      .then(() => state)
   })
   .then(rethinkState => counter(rethinkState, {}))
   .then(rethinkState => counter(rethinkState, { type: 'INCREMENT' }))
