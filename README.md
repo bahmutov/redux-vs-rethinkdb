@@ -1,7 +1,7 @@
 # redux-vs-rethinkdb
 > Immutable Redux "store" is just a database
 
-Companion source code for [Do not reinvent the wheel (database)](https://glebbahmutov.com/blog/do-not-reinvent-the-wheel).
+Companion source code for the future blog post.
 
 * [redux example](src/redux-example.js)
 * [rethinkdb example](src/rethinkdb-example.js)
